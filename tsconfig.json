@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "es6",
+    "module": "commonjs",
+    "rootDir": "./",
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "strict": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "paths": {
+      "@services/*": ["./src/services/*"],
+      "@models/*": ["./src/models/*"],
+      "@types/*": ["./src/types"]
+    }
+  },
+  //"files": ["./src/types/global.d.ts"],
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules", "tests"]
+}
