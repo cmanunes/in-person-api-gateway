@@ -33,10 +33,12 @@ export interface IEmployee {
   dateOfBirth: string;
 }
 
-export interface Company {
+export interface ICompany {
   id: number;
   countryId: number;
+  countryName?: string;
   currencyId: number;
+  currencyName?: string;
   name: string;
   vatNumber: string;
   registeredNumber: string;
@@ -54,5 +56,53 @@ export interface ICompanySearch {
 
 export interface GetCompaniesResponse {
   total: number;
-  companies: [Company];
+  companies: [ICompany];
+}
+
+export interface IDepartment {
+  id: number;
+  companyId: number;
+  managerId?: number;
+  name: string;
+  email?: string;
+}
+
+export interface IDepartmentSearch {
+  pageNumber: number;
+  pageSize: number;
+  companyId: number;
+}
+
+export interface GetDepartmentsResponse {
+  departements: [IDepartment];
+}
+
+export interface ILocation {
+  id: number;
+  companyId: number;
+  countryId: number;
+  managerId?: number;
+  name: string;
+  address1: string;
+  address2: string;
+  city: string;
+  postalCode: string;
+}
+
+export interface ILocationSearch {
+  pageNumber: number;
+  pageSize: number;
+  companyId: number;
+  countryId: number;
+}
+
+export interface GetLocationsResponse {
+  locations: [ILocation];
+}
+
+export interface IEmployeeSearch {
+  pageNumber: number;
+  pageSize: number;
+  departmentId: number;
+  locationId: number;
 }

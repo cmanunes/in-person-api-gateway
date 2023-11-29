@@ -1,5 +1,13 @@
 import axios, { AxiosResponse } from 'axios';
-import { GetCompaniesResponse, ICompanySearch, IInputSignUp } from '../../__typedefs/graphqlTypes';
+import {
+  GetCompaniesResponse,
+  GetDepartmentsResponse,
+  GetLocationsResponse,
+  ICompanySearch,
+  IDepartmentSearch,
+  IInputSignUp,
+  ILocationSearch
+} from '../../__typedefs/graphqlTypes';
 import config from '../../config';
 
 const apiUrl = config.companiesService.url;
@@ -30,6 +38,31 @@ export default class CompaniesService {
       pageSize: input.pageSize,
       name: input.name,
       isBackOffice: input.isBackOffice
+    };
+    const body = ((await axios.post(url, vars)) as AxiosResponse).data as any;
+
+    return body;
+  }
+
+  static async getDepartments(input: IDepartmentSearch): Promise<GetDepartmentsResponse> {
+    const url = `${apiUrl}/getDepartments`;
+    const vars = {
+      pageNumber: input.pageNumber,
+      pageSize: input.pageSize,
+      companyId: input.companyId
+    };
+    const body = ((await axios.post(url, vars)) as AxiosResponse).data as any;
+
+    return body;
+  }
+
+  static async getLocations(input: ILocationSearch): Promise<GetLocationsResponse> {
+    const url = `${apiUrl}/getLocations`;
+    const vars = {
+      pageNumber: input.pageNumber,
+      pageSize: input.pageSize,
+      companyId: input.companyId,
+      countryId: input.countryId
     };
     const body = ((await axios.post(url, vars)) as AxiosResponse).data as any;
 

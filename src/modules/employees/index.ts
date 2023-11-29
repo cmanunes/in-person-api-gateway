@@ -1,6 +1,6 @@
 import { AuthenticationError, ForbiddenError, gql } from 'apollo-server-express';
 import auth from '../../auth';
-import { IInputSignIn } from 'src/__typedefs/graphqlTypes';
+import { IEmployeeSearch, IInputSignIn } from 'src/__typedefs/graphqlTypes';
 import EmployeesService from '../../services/employees/employees-service';
 
 const typeDefs = gql`
@@ -23,13 +23,19 @@ const typeDefs = gql`
     result: String
   }
 
-  type Query {
-    getToken: NewToken
-  }
-
   type UserSignedIn {
     employee: Employee
     token: String
+  }
+
+  type GetEmployeesResponse {
+    total: Int
+    employees: [Employee]
+  }
+
+  type Query {
+    getToken: NewToken
+    getEmployeesByDepartmentAndLocation(pageNumber: Int!, pageSize: Int!, departmentId: Int!, locationId: Int!): GetEmployeesResponse
   }
 
   type Mutation {
@@ -59,6 +65,39 @@ export default {
         }
 
         return { token: '' };
+      },
+      getEmployeesByDepartmentAndLocation: (
+        root: any,
+        { pageNumber, pageSize, departmentId, locationId }: IEmployeeSearch,
+        { token, error }: any
+      ) => {
+        if (error === 503) {
+          throw new ForbiddenError('Not authorised.');
+        }
+        if (error === 401) {
+          const newToken = auth.signTokenByToken(token);
+
+          if (newToken === '503') {
+            throw new ForbiddenError('Not authorised.');
+          }
+
+          return { total: 0, employees: [] };
+        }
+
+        const input = {
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          departmentId: departmentId,
+          locationId: locationId
+        };
+
+        return EmployeesService.getEmployeesByDepartmentAndLocation(input)
+          .then(res => {
+            return res;
+          })
+          .catch(error => {
+            throw error;
+          });
       }
     },
     Mutation: {
