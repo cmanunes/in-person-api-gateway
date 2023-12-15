@@ -13,6 +13,14 @@ export default class EmployeesService {
     return body;
   }
 
+  static async signInBackOffice(input: IInputSignIn) {
+    const url = `${apiUrl}/signInBackOffice`;
+    const vars = { email: input.email, password: input.password };
+    const body = ((await axios.post(url, vars)) as AxiosResponse).data.employee as IEmployee;
+
+    return body;
+  }
+
   static async activateEmployeeAccount(id: number) {
     const url = `${apiUrl}/activateEmployeeAccount`;
     const vars = { id: id };
@@ -21,7 +29,7 @@ export default class EmployeesService {
     return body;
   }
 
-  static async getEmployeesByDepartmentAndLocation(input: IEmployeeSearch) {
+  static async getEmployeesByDepartmentAndLocation(input: IEmployeeSearch, token: string) {
     const url = `${apiUrl}/getEmployeesByDepartmentAndLocation`;
     const vars = {
       pageNumber: input.pageNumber,
@@ -29,8 +37,8 @@ export default class EmployeesService {
       departmentId: input.departmentId,
       locationId: input.locationId
     };
-    const body = ((await axios.post(url, vars)) as AxiosResponse).data;
+    const response = (await axios.post(url, vars, { headers: { 'x-jwt': token } })) as AxiosResponse;
 
-    return body;
+    return response;
   }
 }

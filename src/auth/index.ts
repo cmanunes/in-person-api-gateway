@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import config from '../config';
-import { IUser } from '../models/interfaces/user-interface';
+import { IEmployee } from 'src/__typedefs/graphqlTypes';
 const jwt = require('jsonwebtoken');
 //const Redis = require('ioredis');
 
@@ -38,14 +38,14 @@ async function verifyToken(req: Request, res: Response): Promise<IContext> {
   var token = req.headers['x-jwt'];
 
   if (!token) {
-    return { token: '', error: 503 };
+    return { token: '', error: 401 };
   }
 
   const result = await jwt.verify(token, config.auth.secretKey, async (error: any) => {
     const decoded = decodeToken(token);
 
     if (!decoded.id && !decoded.email /* || !redisClient.exists(decoded.id)*/) {
-      return { token: '', error: 503 };
+      return { token: '', error: 403 };
     }
 
     if (req.body.operationName.indexOf('SignOut') > -1) {
@@ -60,7 +60,7 @@ async function verifyToken(req: Request, res: Response): Promise<IContext> {
 
     if (error) {
       if (error.toString().indexOf('JsonWebTokenError') >= 0) {
-        return { token: '', error: 503 };
+        return { token: '', error: 403 };
       }
 
       return { token: token, error: 401 };
@@ -87,8 +87,6 @@ export default {
   async handleGraphQLContext(ctx: { req: Request; res: Response }): Promise<IContext> {
     const { req, res } = ctx;
 
-    return { token: '', error: 0 };
-
     // check the request for the token
     const validation = await verifyToken(req, res);
     return createContext(validation.token, validation.error);
@@ -96,7 +94,7 @@ export default {
   hashPassword(password: string): string {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
   },
-  signToken(user: IUser) {
+  signToken(employee: IEmployee) {
     /*const redisUrl = `redis://${config.redis.host}:6379`;
     const redisClient = new Redis(redisUrl);
 
@@ -107,13 +105,13 @@ export default {
       // console.log('redisClient.set reply ' + reply);
     });*/
 
-    return jwt.sign({ id: user.id, email: user.email }, config.auth.secretKey, { expiresIn: config.auth.expiresIn });
+    return jwt.sign({ id: employee.id, email: employee.email }, config.auth.secretKey, { expiresIn: config.auth.expiresIn });
   },
   signTokenByToken(token: string): string {
     const decoded = decodeToken(token);
 
     if (!decoded.id || !decoded.email) {
-      return '503';
+      return '403';
     }
     return jwt.sign({ id: decoded.id, email: decoded.email }, config.auth.secretKey, { expiresIn: config.auth.expiresIn });
   },

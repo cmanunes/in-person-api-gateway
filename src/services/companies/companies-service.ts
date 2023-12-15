@@ -31,7 +31,7 @@ export default class CompaniesService {
     return body;
   }
 
-  static async getCompanies(input: ICompanySearch): Promise<GetCompaniesResponse> {
+  static async getCompanies(input: ICompanySearch) {
     const url = `${apiUrl}/getCompanies`;
     const vars = {
       pageNumber: input.pageNumber,
@@ -39,24 +39,24 @@ export default class CompaniesService {
       name: input.name,
       isBackOffice: input.isBackOffice
     };
-    const body = ((await axios.post(url, vars)) as AxiosResponse).data as any;
+    const body = (await axios.post(url, vars)) as AxiosResponse;
 
     return body;
   }
 
-  static async getDepartments(input: IDepartmentSearch): Promise<GetDepartmentsResponse> {
+  static async getDepartments(input: IDepartmentSearch) {
     const url = `${apiUrl}/getDepartments`;
     const vars = {
       pageNumber: input.pageNumber,
       pageSize: input.pageSize,
       companyId: input.companyId
     };
-    const body = ((await axios.post(url, vars)) as AxiosResponse).data as any;
+    const body = (await axios.post(url, vars)) as AxiosResponse;
 
     return body;
   }
 
-  static async getLocations(input: ILocationSearch): Promise<GetLocationsResponse> {
+  static async getLocations(input: ILocationSearch) {
     const url = `${apiUrl}/getLocations`;
     const vars = {
       pageNumber: input.pageNumber,
@@ -64,7 +64,7 @@ export default class CompaniesService {
       companyId: input.companyId,
       countryId: input.countryId
     };
-    const body = ((await axios.post(url, vars)) as AxiosResponse).data as any;
+    const body = (await axios.post(url, vars)) as AxiosResponse;
 
     return body;
   }

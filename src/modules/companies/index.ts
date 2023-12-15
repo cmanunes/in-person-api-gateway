@@ -1,4 +1,5 @@
-import { ForbiddenError, gql } from 'apollo-server-express';
+import { GraphQLError } from 'graphql';
+import gql from 'graphql-tag';
 import auth from '../../auth';
 import { ICompanySearch, IDepartmentSearch, IInputSignUp, ILocationSearch } from 'src/__typedefs/graphqlTypes';
 import CompaniesService from '../../services/companies/companies-service';
@@ -73,8 +74,10 @@ const typeDefs = gql`
   type Query {
     getToken: NewToken
     getCompanies(pageNumber: Int!, pageSize: Int!, name: String, isBackOffice: Boolean): GetCompaniesResponse
-    getDepartmentsByCompany(pageNumber: Int!, pageSize: Int!, companyId: Int!): GetDepartmentsResponse
+      @rateLimit(limit: 100, duration: 60)
+    getDepartmentsByCompany(pageNumber: Int!, pageSize: Int!, companyId: Int!): GetDepartmentsResponse @rateLimit(limit: 100, duration: 60)
     getLocationsByCompanyAndCountry(pageNumber: Int!, pageSize: Int!, companyId: Int!, countryId: Int!): GetLocationsResponse
+      @rateLimit(limit: 100, duration: 60)
   }
 
   type Mutation {
@@ -96,33 +99,29 @@ export default {
   resolvers: {
     Query: {
       getToken: (root: any, { input }: any, { token, error }: any) => {
-        if (error === 503) {
-          throw new ForbiddenError('Not authorised.');
+        if (error === 403) {
+          throw new GraphQLError('Not authorised.', {
+            extensions: { code: '403' }
+          });
         }
         if (error === 401) {
-          const newToken = auth.signTokenByToken(token);
-
-          if (newToken === '503') {
-            throw new ForbiddenError('Not authorised.');
-          }
-
-          return { token: newToken };
+          throw new GraphQLError('Not authenticated.', {
+            extensions: { code: '401' }
+          });
         }
 
         return { token: '' };
       },
       getCompanies: (root: any, { pageNumber, pageSize, name, isBackOffice }: ICompanySearch, { token, error }: any) => {
-        if (error === 503) {
-          throw new ForbiddenError('Not authorised.');
+        if (error === 403) {
+          throw new GraphQLError('Not authorised.', {
+            extensions: { code: '403' }
+          });
         }
         if (error === 401) {
-          const newToken = auth.signTokenByToken(token);
-
-          if (newToken === '503') {
-            throw new ForbiddenError('Not authorised.');
-          }
-
-          return { total: 0, companies: [] };
+          throw new GraphQLError('Not authenticated.', {
+            extensions: { code: '401' }
+          });
         }
 
         const input = {
@@ -134,24 +133,28 @@ export default {
 
         return CompaniesService.getCompanies(input)
           .then(res => {
-            return res;
+            return res.data;
           })
           .catch(error => {
+            if (error.response?.status === 429) {
+              throw new GraphQLError('Too many requests.', {
+                extensions: { code: '429' }
+              });
+            }
+
             throw error;
           });
       },
       getDepartmentsByCompany: (root: any, { pageNumber, pageSize, companyId }: IDepartmentSearch, { token, error }: any) => {
-        if (error === 503) {
-          throw new ForbiddenError('Not authorised.');
+        if (error === 403) {
+          throw new GraphQLError('Not authorised.', {
+            extensions: { code: '403' }
+          });
         }
         if (error === 401) {
-          const newToken = auth.signTokenByToken(token);
-
-          if (newToken === '503') {
-            throw new ForbiddenError('Not authorised.');
-          }
-
-          return { total: 0, companies: [] };
+          throw new GraphQLError('Not authenticated.', {
+            extensions: { code: '401' }
+          });
         }
 
         const input = {
@@ -162,9 +165,15 @@ export default {
 
         return CompaniesService.getDepartments(input)
           .then(res => {
-            return res;
+            return res.data;
           })
           .catch(error => {
+            if (error.response?.status === 429) {
+              throw new GraphQLError('Too many request.', {
+                extensions: { code: '429' }
+              });
+            }
+
             throw error;
           });
       },
@@ -173,17 +182,15 @@ export default {
         { pageNumber, pageSize, companyId, countryId }: ILocationSearch,
         { token, error }: any
       ) => {
-        if (error === 503) {
-          throw new ForbiddenError('Not authorised.');
+        if (error === 403) {
+          throw new GraphQLError('Not authorised.', {
+            extensions: { code: '403' }
+          });
         }
         if (error === 401) {
-          const newToken = auth.signTokenByToken(token);
-
-          if (newToken === '503') {
-            throw new ForbiddenError('Not authorised.');
-          }
-
-          return { total: 0, companies: [] };
+          throw new GraphQLError('Not authenticated.', {
+            extensions: { code: '401' }
+          });
         }
 
         const input = {
@@ -195,9 +202,15 @@ export default {
 
         return CompaniesService.getLocations(input)
           .then(res => {
-            return res;
+            return res.data;
           })
           .catch(error => {
+            if (error.response?.status === 429) {
+              throw new GraphQLError('Too many requests.', {
+                extensions: { code: '429' }
+              });
+            }
+
             throw error;
           });
       }
