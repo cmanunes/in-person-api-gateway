@@ -1,3 +1,3 @@
 #!/bin/sh
-cd /opt/microservices-inperson/api-gateway
+cd /opt/microservices-in-person/api-gateway
 /usr/bin/pm2 start

@@ -22,6 +22,9 @@ export default {
   packagesService: {
     url: process.env.PACKAGES_SERVICE_URL
   },
+  jobsService: {
+    url: process.env.JOBS_SERVICE_URL
+  },
   webApp: {
     url: process.env.WEB_APP_URL
   }

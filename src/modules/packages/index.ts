@@ -31,13 +31,13 @@ const typeDefs = gql`
 export default {
   resolvers: {
     Query: {
-      getPackages: (root: any, { token, error }: any) => {
-        if (error === 403) {
+      getPackages: (parent: any, args: any, contextValue: any) => {
+        if (contextValue.error === 403) {
           throw new GraphQLError('Not authorised.', {
             extensions: { code: '403' }
           });
         }
-        if (error === 401) {
+        if (contextValue.error === 401) {
           throw new GraphQLError('Not authenticated.', {
             extensions: { code: '401' }
           });
@@ -45,13 +45,13 @@ export default {
 
         return PackagesService.getPackages();
       },
-      getCountries: (root: any, { token, error }: any) => {
-        if (error === 403) {
+      getCountries: (parent: any, args: any, contextValue: any) => {
+        if (contextValue.error === 403) {
           throw new GraphQLError('Not authorised.', {
             extensions: { code: '403' }
           });
         }
-        if (error === 401) {
+        if (contextValue.error === 401) {
           throw new GraphQLError('Not authenticated.', {
             extensions: { code: '401' }
           });
@@ -59,13 +59,13 @@ export default {
 
         return CountriesService.getCountries();
       },
-      getCurrencies: (root: any, { token, error }: any) => {
-        if (error === 403) {
+      getCurrencies: (parent: any, args: any, contextValue: any) => {
+        if (contextValue.error === 403) {
           throw new GraphQLError('Not authorised.', {
             extensions: { code: '403' }
           });
         }
-        if (error === 401) {
+        if (contextValue.error === 401) {
           throw new GraphQLError('Not authenticated.', {
             extensions: { code: '401' }
           });

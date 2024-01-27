@@ -12,11 +12,6 @@ interface IContext {
   error: number;
 }
 
-// handle all of the token magic here
-function createContext(token: string, error: number): IContext {
-  return { token, error };
-}
-
 function decodeToken(token: any): any {
   const base64String = token.split('.')[1];
   const decodedValue = JSON.parse(Buffer.from(base64String, 'base64').toString('ascii'));
@@ -84,12 +79,10 @@ async function verifyToken(req: Request, res: Response): Promise<IContext> {
 
 // create context for requests
 export default {
-  async handleGraphQLContext(ctx: { req: Request; res: Response }): Promise<IContext> {
-    const { req, res } = ctx;
-
+  async handleGraphQLContext(req: any, res: any): Promise<IContext> {
     // check the request for the token
     const validation = await verifyToken(req, res);
-    return createContext(validation.token, validation.error);
+    return { token: validation.token, error: validation.error };
   },
   hashPassword(password: string): string {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10));

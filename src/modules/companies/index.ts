@@ -98,13 +98,13 @@ const typeDefs = gql`
 export default {
   resolvers: {
     Query: {
-      getToken: (root: any, { input }: any, { token, error }: any) => {
-        if (error === 403) {
+      getToken: (parent: any, args: any, contextValue: any) => {
+        if (contextValue.error === 403) {
           throw new GraphQLError('Not authorised.', {
             extensions: { code: '403' }
           });
         }
-        if (error === 401) {
+        if (contextValue.error === 401) {
           throw new GraphQLError('Not authenticated.', {
             extensions: { code: '401' }
           });
@@ -112,26 +112,26 @@ export default {
 
         return { token: '' };
       },
-      getCompanies: (root: any, { pageNumber, pageSize, name, isBackOffice }: ICompanySearch, { token, error }: any) => {
-        if (error === 403) {
+      getCompanies: (parent: any, args: any, contextValue: any) => {
+        if (contextValue.error === 403) {
           throw new GraphQLError('Not authorised.', {
             extensions: { code: '403' }
           });
         }
-        if (error === 401) {
+        if (contextValue.error === 401) {
           throw new GraphQLError('Not authenticated.', {
             extensions: { code: '401' }
           });
         }
 
         const input = {
-          pageNumber: pageNumber,
-          pageSize: pageSize,
-          name: name,
-          isBackOffice: isBackOffice
+          pageNumber: args.pageNumber,
+          pageSize: args.pageSize,
+          name: args.name,
+          isBackOffice: args.isBackOffice
         };
 
-        return CompaniesService.getCompanies(input)
+        return CompaniesService.getCompanies(input, contextValue.token)
           .then(res => {
             return res.data;
           })
@@ -145,25 +145,25 @@ export default {
             throw error;
           });
       },
-      getDepartmentsByCompany: (root: any, { pageNumber, pageSize, companyId }: IDepartmentSearch, { token, error }: any) => {
-        if (error === 403) {
+      getDepartmentsByCompany: (parent: any, args: any, contextValue: any) => {
+        if (contextValue.error === 403) {
           throw new GraphQLError('Not authorised.', {
             extensions: { code: '403' }
           });
         }
-        if (error === 401) {
+        if (contextValue.error === 401) {
           throw new GraphQLError('Not authenticated.', {
             extensions: { code: '401' }
           });
         }
 
         const input = {
-          pageNumber: pageNumber,
-          pageSize: pageSize,
-          companyId: companyId
+          pageNumber: args.pageNumber,
+          pageSize: args.pageSize,
+          companyId: args.companyId
         };
 
-        return CompaniesService.getDepartments(input)
+        return CompaniesService.getDepartments(input, contextValue.token)
           .then(res => {
             return res.data;
           })
@@ -177,30 +177,26 @@ export default {
             throw error;
           });
       },
-      getLocationsByCompanyAndCountry: (
-        root: any,
-        { pageNumber, pageSize, companyId, countryId }: ILocationSearch,
-        { token, error }: any
-      ) => {
-        if (error === 403) {
+      getLocationsByCompanyAndCountry: (parent: any, args: any, contextValue: any) => {
+        if (contextValue.error === 403) {
           throw new GraphQLError('Not authorised.', {
             extensions: { code: '403' }
           });
         }
-        if (error === 401) {
+        if (contextValue.error === 401) {
           throw new GraphQLError('Not authenticated.', {
             extensions: { code: '401' }
           });
         }
 
         const input = {
-          pageNumber: pageNumber,
-          pageSize: pageSize,
-          companyId: companyId,
-          countryId: countryId
+          pageNumber: args.pageNumber,
+          pageSize: args.pageSize,
+          companyId: args.companyId,
+          countryId: args.countryId
         };
 
-        return CompaniesService.getLocations(input)
+        return CompaniesService.getLocations(input, contextValue.token)
           .then(res => {
             return res.data;
           })
@@ -216,6 +212,7 @@ export default {
       }
     },
     Mutation: {
+      // TODO - Test this again because of changes to Apollo server
       signUp: (root: any, input: IInputSignUp) => {
         return CompaniesService.signUp(input)
           .then(res => {

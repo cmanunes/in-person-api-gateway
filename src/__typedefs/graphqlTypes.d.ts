@@ -106,3 +106,22 @@ export interface IEmployeeSearch {
   departmentId: number;
   locationId: number;
 }
+
+export interface IJobSearch {
+  pageNumber: number;
+  pageSize: number;
+  name: string;
+  jobStageId: number;
+  companyId: number;
+}
+
+export interface IJob {
+  id: number;
+  companyId: number;
+  name: string;
+}
+
+export interface GetJobsResponse {
+  total: number;
+  jobs: [IJob];
+}

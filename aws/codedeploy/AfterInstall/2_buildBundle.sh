@@ -1,3 +1,3 @@
 #!/bin/sh
-cd /opt/microservices-inperson/api-gateway
+cd /opt/microservices-in-person/api-gateway
 npm run build

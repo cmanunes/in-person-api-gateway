@@ -75,7 +75,7 @@ const rootDir = rel(`../${APPLICATION_NAME}`);
   await s3Client
     .putObject({
       Body: fs.createReadStream(zipPath),
-      Bucket: `microservices-inperson-${APPLICATION_NAME}-deployment`,
+      Bucket: `microservices-in-person-${APPLICATION_NAME}-deployment`,
       Key: filename
     })
     .promise();
@@ -94,7 +94,7 @@ const rootDir = rel(`../${APPLICATION_NAME}`);
       revision: {
         revisionType: 'S3',
         s3Location: {
-          bucket: `microservices-inperson-${APPLICATION_NAME}-deployment`,
+          bucket: `microservices-in-person-${APPLICATION_NAME}-deployment`,
           bundleType: 'zip',
           key: filename
         }

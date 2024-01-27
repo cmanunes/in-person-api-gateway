@@ -1,20 +1,14 @@
 import { ApolloServer } from '@apollo/server';
-import { expressMiddleware } from '@apollo/server/express4';
+import { startStandaloneServer } from '@apollo/server/standalone';
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const { rateLimitDirective } = require('graphql-rate-limit-directive');
-import express from 'express';
-import http from 'http';
-import cors from 'cors';
-
-export const app = express();
-const xss = require('xss-clean');
-const httpServer = http.createServer(app);
 
 import config from '../config';
 import auth from '../auth';
 import companies from '../modules/companies';
 import packages from '../modules/packages';
 import employees from '../modules/employees';
+import jobs from '../modules/jobs';
 
 class RateLimitError extends Error {
   extensions: { code: string; error: string; resetAt: Date };
@@ -45,30 +39,21 @@ const { rateLimitDirectiveTypeDefs, rateLimitDirectiveTransformer } = rateLimitD
 
 const startServer = async () => {
   let schema = makeExecutableSchema({
-    typeDefs: [rateLimitDirectiveTypeDefs, companies.typeDefs, packages.typeDefs, employees.typeDefs],
-    resolvers: [companies.resolvers, packages.resolvers, employees.resolvers]
+    typeDefs: [rateLimitDirectiveTypeDefs, companies.typeDefs, packages.typeDefs, employees.typeDefs, jobs.typeDefs],
+    resolvers: [companies.resolvers, packages.resolvers, employees.resolvers, jobs.resolvers]
   });
   schema = rateLimitDirectiveTransformer(schema);
 
   const apolloServer = new ApolloServer({ schema });
 
-  app.disable('x-powered-by');
+  const { url } = await startStandaloneServer(apolloServer, {
+    context: async ({ req, res }) => {
+      const ctx = await auth.handleGraphQLContext(req, res);
 
-  // to force express to recognize connection as HTTPS and receive cookie with 'secure' set
-  app.set('trust proxy', 1);
-
-  await apolloServer.start();
-  app.use(
-    '/graphql',
-    cors<cors.CorsRequest>(),
-    express.json(),
-    xss(),
-    expressMiddleware(apolloServer, {
-      context: await auth.handleGraphQLContext
-    })
-  );
-
-  await new Promise<void>(resolve => httpServer.listen({ port: config.port }, resolve));
+      return { token: ctx.token, error: ctx.error };
+    },
+    listen: { port: config.port }
+  });
 
   console.log(`API Gateway Server running on port: ${config.port}`);
 };
