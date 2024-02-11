@@ -12,6 +12,34 @@ export default class JobsService {
     return body;
   }
 
+  static async getJobById(id: number, companyId: number, token: string) {
+    const url = `${apiUrl}/getJobById`;
+    const vars = {
+      id: id,
+      companyId: companyId
+    };
+    const body = (await axios.post(url, vars, { headers: { 'x-jwt': token } })).data as any;
+
+    return body;
+  }
+
+  static async deleteJobById(id: number, token: string) {
+    const url = `${apiUrl}/deleteJobById`;
+    await axios.delete(url, { headers: { 'x-jwt': token }, data: { id: id } });
+  }
+
+  static async updateJob(id: number, companyId: number, jobStageId: number, name: string, description: string, token: string) {
+    const url = `${apiUrl}/updateJob`;
+    const vars = {
+      id: id,
+      companyId: companyId,
+      jobStageId: jobStageId,
+      name: name,
+      description: description
+    };
+    await axios.put(url, vars, { headers: { 'x-jwt': token } });
+  }
+
   static async getJobs(input: IJobSearch, token: string) {
     const url = `${apiUrl}/getJobs`;
     const vars = {
