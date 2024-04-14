@@ -8,6 +8,7 @@ const typeDefs = gql`
   type Employee {
     id: ID!
     companyId: Int
+    profileId: Int
     firstName: String
     lastName: String
     email: String
