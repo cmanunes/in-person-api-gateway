@@ -28,14 +28,52 @@ export default class JobsService {
     await axios.delete(url, { headers: { 'x-jwt': token }, data: { id: id } });
   }
 
-  static async updateJob(id: number, companyId: number, jobStageId: number, name: string, description: string, token: string) {
+  static async createJob(
+    id: number,
+    companyId: number,
+    jobStageId: number,
+    name: string,
+    description: string,
+    termsAndConditions: string,
+    privacyNotice: string,
+    questions: string,
+    token: string
+  ) {
+    const url = `${apiUrl}/createJob`;
+    const vars = {
+      id: id,
+      companyId: companyId,
+      jobStageId: jobStageId,
+      name: name,
+      description: description,
+      termsAndConditions: termsAndConditions,
+      privacyNotice: privacyNotice,
+      questions: questions
+    };
+    await axios.put(url, vars, { headers: { 'x-jwt': token } });
+  }
+
+  static async updateJob(
+    id: number,
+    companyId: number,
+    jobStageId: number,
+    name: string,
+    description: string,
+    termsAndConditions: string,
+    privacyNotice: string,
+    questions: string,
+    token: string
+  ) {
     const url = `${apiUrl}/updateJob`;
     const vars = {
       id: id,
       companyId: companyId,
       jobStageId: jobStageId,
       name: name,
-      description: description
+      description: description,
+      termsAndConditions: termsAndConditions,
+      privacyNotice: privacyNotice,
+      questions: questions
     };
     await axios.put(url, vars, { headers: { 'x-jwt': token } });
   }

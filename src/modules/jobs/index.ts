@@ -10,6 +10,9 @@ const typeDefs = gql`
     jobStageName: String
     name: String
     description: String
+    termsAndConditions: String
+    privacyNotice: String
+    questions: [JobQuestion]
     createdAt: String
     updatedAt: String
   }
@@ -17,6 +20,25 @@ const typeDefs = gql`
   type GetJobsResponse {
     total: Int
     jobs: [Job]
+  }
+
+  type JobQuestion {
+    id: Int
+    jobId: Int
+    questionType: Int!
+    questionText: String!
+    isMandatory: Boolean!
+    createdAt: String!
+  }
+
+  type JobCandidateAnswer {
+    id: Int
+    jobId: Int
+    jobQuestionId: Int!
+    candidateId: Int
+    answerText: String
+    answerOption: String
+    createdAt: String!
   }
 
   type JobStage {
@@ -37,7 +59,26 @@ const typeDefs = gql`
 
   type Mutation {
     deleteJobById(id: Int!): Job @rateLimit(limit: 50, duration: 60)
-    updateJob(id: Int!, companyId: Int!, jobStageId: Int!, name: String!, description: String!): Result @rateLimit(limit: 50, duration: 60)
+    createJob(
+      id: Int
+      companyId: Int!
+      jobStageId: Int
+      name: String!
+      description: String!
+      termsAndConditions: String
+      privacyNotice: String
+      questions: String
+    ): Result @rateLimit(limit: 50, duration: 60)
+    updateJob(
+      id: Int!
+      companyId: Int!
+      jobStageId: Int!
+      name: String!
+      description: String!
+      termsAndConditions: String
+      privacyNotice: String
+      questions: String
+    ): Result @rateLimit(limit: 50, duration: 60)
   }
 `;
 
@@ -165,6 +206,47 @@ export default {
             throw error;
           });
       },
+      createJob: (parent: any, args: any, contextValue: any) => {
+        if (contextValue.error === 403) {
+          throw new GraphQLError('Not authorised.', {
+            extensions: { code: '403' }
+          });
+        }
+        if (contextValue.error === 401) {
+          throw new GraphQLError('Not authenticated.', {
+            extensions: { code: '401' }
+          });
+        }
+        if (!contextValue.token) {
+          throw new GraphQLError('Not authenticated.', {
+            extensions: { code: '401' }
+          });
+        }
+
+        return JobsService.createJob(
+          args.id,
+          args.companyId,
+          args.jobStageId,
+          args.name,
+          args.description,
+          args.termsAndConditions,
+          args.privacyNotice,
+          args.questions,
+          contextValue.token
+        )
+          .then(res => {
+            return res;
+          })
+          .catch(error => {
+            if (error.response?.status === 429) {
+              throw new GraphQLError('Too many requests.', {
+                extensions: { code: '429' }
+              });
+            }
+
+            throw error;
+          });
+      },
       updateJob: (parent: any, args: any, contextValue: any) => {
         if (contextValue.error === 403) {
           throw new GraphQLError('Not authorised.', {
@@ -182,7 +264,17 @@ export default {
           });
         }
 
-        return JobsService.updateJob(args.id, args.companyId, args.jobStageId, args.name, args.description, contextValue.token)
+        return JobsService.updateJob(
+          args.id,
+          args.companyId,
+          args.jobStageId,
+          args.name,
+          args.description,
+          args.termsAndConditions,
+          args.privacyNotice,
+          args.questions,
+          contextValue.token
+        )
           .then(res => {
             return res;
           })

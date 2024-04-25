@@ -25,6 +25,9 @@ async function verifyToken(req: Request, res: Response): Promise<IContext> {
   if (
     req.body.operationName.indexOf('SignIn') > -1 ||
     req.body.operationName.indexOf('SignUp') > -1 ||
+    req.body.operationName.indexOf('GetPackages') > -1 ||
+    req.body.operationName.indexOf('GetCountries') > -1 ||
+    req.body.operationName.indexOf('GetCurrencies') > -1 ||
     req.body.operationName.indexOf('ActivateEmployeeAccount') > -1
   ) {
     return { token: '', error: 0 };
