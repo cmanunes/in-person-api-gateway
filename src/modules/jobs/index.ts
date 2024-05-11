@@ -223,6 +223,12 @@ export default {
           });
         }
 
+        if (args.companyId <= 0) {
+          throw new GraphQLError('Missing job companyId.', {
+            extensions: { code: '400' }
+          });
+        }
+
         return JobsService.createJob(
           args.id,
           args.companyId,
@@ -261,6 +267,18 @@ export default {
         if (!contextValue.token) {
           throw new GraphQLError('Not authenticated.', {
             extensions: { code: '401' }
+          });
+        }
+
+        if (args.id <= 0) {
+          throw new GraphQLError('Missing job Id.', {
+            extensions: { code: '400' }
+          });
+        }
+
+        if (args.companyId <= 0) {
+          throw new GraphQLError('Missing job companyId.', {
+            extensions: { code: '400' }
           });
         }
 
