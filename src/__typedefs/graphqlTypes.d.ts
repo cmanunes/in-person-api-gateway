@@ -103,8 +103,10 @@ export interface GetLocationsResponse {
 export interface IEmployeeSearch {
   pageNumber: number;
   pageSize: number;
-  departmentId: number;
-  locationId: number;
+  companyId?: number;
+  name?: string;
+  departmentId?: number;
+  locationId?: number;
 }
 
 export interface IJobSearch {

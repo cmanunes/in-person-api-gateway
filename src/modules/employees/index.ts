@@ -6,15 +6,40 @@ import EmployeesService from '../../services/employees/employees-service';
 
 const typeDefs = gql`
   type Employee {
-    id: ID!
-    companyId: Int
+    id: Int!
+    companyId: Int!
+    locationId: Int
+    departmentId: Int
+    currencyId: Int
+    managerId: Int
+    teamId: Int
     profileId: Int
-    firstName: String
-    lastName: String
-    email: String
-    password: String
-    isActive: Boolean
+    employmentTypeId: Int
+    employeeStatusId: Int
+    employeeId: String
+    title: String
+    firstName: String!
+    middleNames: String
+    lastName: String!
     dateOfBirth: String
+    email: String!
+    maritalStatus: String
+    password: String!
+    contact: String
+    emergencyContact: String
+    experienceTime: Int
+    skills: String
+    userMonthlyCost: Int
+    userYearlyCost: Int
+    paymentType: String
+    startingDate: String
+    finishingDate: String
+    probationStartDate: String
+    probationEndDate: String
+    createdDate: String
+    updatedDate: String
+    isBackOffice: Boolean!
+    isActive: Boolean!
   }
 
   type NewToken {
@@ -37,6 +62,8 @@ const typeDefs = gql`
 
   type Query {
     getToken: NewToken
+    getEmployees(pageNumber: Int!, pageSize: Int!, companyId: Int!, name: String): GetEmployeesResponse @rateLimit(limit: 100, duration: 60)
+    getEmployeeById(id: Int!, companyId: Int!): Employee @rateLimit(limit: 100, duration: 60)
     getEmployeesByDepartmentAndLocation(pageNumber: Int!, pageSize: Int!, departmentId: Int!, locationId: Int!): GetEmployeesResponse
       @rateLimit(limit: 100, duration: 60)
   }
@@ -72,6 +99,93 @@ export default {
         }
 
         return { token: '' };
+      },
+      getEmployees: (parent: any, args: any, contextValue: any) => {
+        if (contextValue.error === 403) {
+          throw new GraphQLError('Not authorised.', {
+            extensions: { code: '403' }
+          });
+        }
+        if (contextValue.error === 401) {
+          throw new GraphQLError('Not authenticated.', {
+            extensions: { code: '401' }
+          });
+        }
+        if (!contextValue.token) {
+          throw new GraphQLError('Not authenticated.', {
+            extensions: { code: '401' }
+          });
+        }
+
+        if (args.companyId <= 0) {
+          throw new GraphQLError("Missing employees' companyId.", {
+            extensions: { code: '400' }
+          });
+        }
+
+        const input = {
+          pageNumber: args.pageNumber,
+          pageSize: args.pageSize,
+          companyId: args.companyId,
+          name: args.name
+        };
+
+        return EmployeesService.getEmployees(input, contextValue.token)
+          .then(res => {
+            return res.data;
+          })
+          .catch(error => {
+            if (error.response?.status === 429) {
+              throw new GraphQLError('Too many requests.', {
+                extensions: { code: '429' }
+              });
+            }
+
+            throw error;
+          });
+      },
+      getEmployeeById: (parent: any, args: any, contextValue: any) => {
+        if (contextValue.error === 403) {
+          throw new GraphQLError('Not authorised.', {
+            extensions: { code: '403' }
+          });
+        }
+        if (contextValue.error === 401) {
+          throw new GraphQLError('Not authenticated.', {
+            extensions: { code: '401' }
+          });
+        }
+        if (!contextValue.token) {
+          throw new GraphQLError('Not authenticated.', {
+            extensions: { code: '401' }
+          });
+        }
+
+        if (args.id <= 0) {
+          throw new GraphQLError("Missing employees' id.", {
+            extensions: { code: '400' }
+          });
+        }
+
+        if (args.companyId <= 0) {
+          throw new GraphQLError("Missing employees' companyId.", {
+            extensions: { code: '400' }
+          });
+        }
+
+        return EmployeesService.getEmployeeById(args.id, args.companyId, contextValue.token)
+          .then(res => {
+            return res;
+          })
+          .catch(error => {
+            if (error.response?.status === 429) {
+              throw new GraphQLError('Too many requests.', {
+                extensions: { code: '429' }
+              });
+            }
+
+            throw error;
+          });
       },
       getEmployeesByDepartmentAndLocation: (
         root: any,

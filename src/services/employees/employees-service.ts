@@ -29,6 +29,29 @@ export default class EmployeesService {
     return body;
   }
 
+  static async getEmployees(input: IEmployeeSearch, token: string) {
+    const url = `${apiUrl}/getEmployees`;
+    const vars = {
+      pageNumber: input.pageNumber,
+      pageSize: input.pageSize,
+      companyId: input.companyId,
+      name: input.name
+    };
+    const body = (await axios.post(url, vars, { headers: { 'x-jwt': token } })) as AxiosResponse;
+
+    return body;
+  }
+
+  static async getEmployeeById(id: number, companyId: number, token: string) {
+    const url = `${apiUrl}/getEmployeeById`;
+    const vars = {
+      id: id,
+      companyId: companyId
+    };
+    const body = (await axios.post(url, vars, { headers: { 'x-jwt': token } })).data as any;
+
+    return body;
+  }
   static async getEmployeesByDepartmentAndLocation(input: IEmployeeSearch, token: string) {
     const url = `${apiUrl}/getEmployeesByDepartmentAndLocation`;
     const vars = {
