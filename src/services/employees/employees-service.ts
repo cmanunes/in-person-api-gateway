@@ -52,6 +52,7 @@ export default class EmployeesService {
 
     return body;
   }
+
   static async getEmployeesByDepartmentAndLocation(input: IEmployeeSearch, token: string) {
     const url = `${apiUrl}/getEmployeesByDepartmentAndLocation`;
     const vars = {
@@ -63,5 +64,82 @@ export default class EmployeesService {
     const response = (await axios.post(url, vars, { headers: { 'x-jwt': token } })) as AxiosResponse;
 
     return response;
+  }
+
+  static async updateEmployee(
+    id: number,
+    companyId: number,
+    locationId: number,
+    departmentId: number,
+    currencyId: number,
+    managerId: number,
+    teamId: number,
+    profileId: number,
+    employmentTypeId: number,
+    employeeStatusId: number,
+    employeeId: string,
+    title: string,
+    firstName: string,
+    middleNames: string,
+    lastName: string,
+    dateOfBirth: string,
+    email: string,
+    maritalStatus: string,
+    password: string,
+    contact: string,
+    emergencyContact: string,
+    experienceTime: number,
+    skills: string,
+    userMonthlyCost: string,
+    userYearlyCost: string,
+    paymentType: string,
+    startingDate: string,
+    finishingDate: string,
+    probationStartDate: string,
+    probationEndDate: string,
+    createdDate: string,
+    updatedDate: string,
+    isBackOffice: boolean,
+    isActive: boolean,
+    token: string
+  ) {
+    const url = `${apiUrl}/updateEmployee`;
+    const vars = {
+      id: id,
+      companyId: companyId,
+      locationId: locationId,
+      departmentId: departmentId,
+      currencyId: currencyId,
+      managerId: managerId,
+      teamId: teamId,
+      profileId: profileId,
+      employmentTypeId: employmentTypeId,
+      employeeStatusId: employeeStatusId,
+      employeeId: employeeId,
+      title: title,
+      firstName: firstName,
+      middleNames: middleNames,
+      lastName: lastName,
+      dateOfBirth: dateOfBirth,
+      email: email,
+      maritalStatus: maritalStatus,
+      password: password,
+      contact: contact,
+      emergencyContact: emergencyContact,
+      experienceTime: experienceTime,
+      skills: skills,
+      userMonthlyCost: userMonthlyCost,
+      userYearlyCost: userYearlyCost,
+      paymentType: paymentType,
+      startingDate: startingDate,
+      finishingDate: finishingDate,
+      probationStartDate: probationStartDate,
+      probationEndDate: probationEndDate,
+      createdDate: createdDate,
+      updatedDate: updatedDate,
+      isBackOffice: isBackOffice,
+      isActive: isActive
+    };
+    await axios.put(url, vars, { headers: { 'x-jwt': token } });
   }
 }

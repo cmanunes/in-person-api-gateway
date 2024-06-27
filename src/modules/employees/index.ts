@@ -22,9 +22,9 @@ const typeDefs = gql`
     middleNames: String
     lastName: String!
     dateOfBirth: String
-    email: String!
+    email: String
     maritalStatus: String
-    password: String!
+    password: String
     contact: String
     emergencyContact: String
     experienceTime: Int
@@ -74,6 +74,42 @@ const typeDefs = gql`
     signInAdmin(email: String!, password: String!): UserSignedIn @rateLimit(limit: 5, duration: 5)
     signInBackOffice(email: String!, password: String!): UserSignedIn @rateLimit(limit: 5, duration: 5)
     activateEmployeeAccount(id: Int!): ProcessCompleted
+    updateEmployee(
+      id: Int!
+      companyId: Int!
+      locationId: Int
+      departmentId: Int
+      currencyId: Int
+      managerId: Int
+      teamId: Int
+      profileId: Int
+      employmentTypeId: Int
+      employeeStatusId: Int
+      employeeId: String
+      title: String
+      firstName: String!
+      middleNames: String
+      lastName: String!
+      dateOfBirth: String
+      email: String
+      maritalStatus: String
+      password: String
+      contact: String
+      emergencyContact: String
+      experienceTime: Int
+      skills: String
+      userMonthlyCost: String
+      userYearlyCost: String
+      paymentType: String
+      startingDate: String
+      finishingDate: String
+      probationStartDate: String
+      probationEndDate: String
+      createdDate: String
+      updatedDate: String
+      isBackOffice: Boolean!
+      isActive: Boolean!
+    ): Result @rateLimit(limit: 50, duration: 60)
   }
 `;
 
@@ -272,6 +308,97 @@ export default {
       },
       activateEmployeeAccount: (root: any, id: number) => {
         return { result: EmployeesService.activateEmployeeAccount(id) };
+      },
+      updateEmployee: (parent: any, args: any, contextValue: any) => {
+        if (contextValue.error === 403) {
+          throw new GraphQLError('Not authorised.', {
+            extensions: { code: '403' }
+          });
+        }
+        if (contextValue.error === 401) {
+          throw new GraphQLError('Not authenticated.', {
+            extensions: { code: '401' }
+          });
+        }
+        if (!contextValue.token) {
+          throw new GraphQLError('Not authenticated.', {
+            extensions: { code: '401' }
+          });
+        }
+
+        if (args.id <= 0) {
+          throw new GraphQLError('Missing employee Id.', {
+            extensions: { code: '400' }
+          });
+        }
+
+        if (args.companyId <= 0) {
+          throw new GraphQLError('Missing employee company Id.', {
+            extensions: { code: '400' }
+          });
+        }
+
+        if (args.firstName <= 0) {
+          throw new GraphQLError('Missing employee first name.', {
+            extensions: { code: '400' }
+          });
+        }
+
+        if (args.lastName <= 0) {
+          throw new GraphQLError('Missing employee last name.', {
+            extensions: { code: '400' }
+          });
+        }
+
+        return EmployeesService.updateEmployee(
+          args.id,
+          args.companyId,
+          args.locationId,
+          args.departmentId,
+          args.currencyId,
+          args.managerId,
+          args.teamId,
+          args.profileId,
+          args.employmentTypeId,
+          args.employeeStatusId,
+          args.employeeId,
+          args.title,
+          args.firstName,
+          args.middleNames,
+          args.lastName,
+          args.dateOfBirth,
+          args.email,
+          args.maritalStatus,
+          args.password,
+          args.contact,
+          args.emergencyContact,
+          args.experienceTime,
+          args.skills,
+          args.userMonthlyCost,
+          args.userYearlyCost,
+          args.paymentType,
+          args.startingDate,
+          args.finishingDate,
+          args.probationStartDate,
+          args.probationEndDate,
+          args.createdDate,
+          args.updatedDate,
+          args.isBackOffice,
+          args.isActive,
+          contextValue.token
+        )
+          .then(res => {
+            return res;
+          })
+          .catch(error => {
+            if (error.response?.status === 429) {
+              throw new GraphQLError('Too many requests.', {
+                extensions: { code: '429' }
+              });
+            }
+
+            throw error;
+          });
       }
     }
   },
